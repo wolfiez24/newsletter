@@ -27,23 +27,52 @@ app.get("/", function(req, res){
 });
 
 app.post("/", function(req,res){
-  firstName = req.body.firstName;
-  lastName = req.body.lastName;
-    email = req.body.email;
+  const firstName = req.body.firstName;
+const lastName = req.body.lastName;
+  const email = req.body.email;
 
   var data = {
     members : [{
       email_address: email,
       status: "subscribed",
-      merge_fields: [{
+      merge_fields: {
         FNAME : firstName,
         LNAME : lastName
-      }]
+      }
     }]
   };
 
   var JSONData = JSON.stringify(data);
 
+  const api = process.env.API;
+
+  const options = {
+
+    url: "https://us20.api.mailchimp.com/3.0/lists/" + listID,
+    method: 'POST',
+    auth:"wolfiez24:" + apiKey,
+    headers: {
+        'Authorization': "wolfiez24:" + apiKey,
+        'auth' :"wolfiez24:" + apiKey
+    },
+    body: JSONData
+};
+    request(options, function(error, response, body){
+        if (error){
+          
+            res.sendFile(__dirname + '/failure.html');
+        } else {
+          console.log(response.statusCode);
+            if (response.statusCode === 200) {
+                res.sendFile(__dirname + '/success.html');
+            } else {
+                res.sendFile(__dirname + '/failure.html');
+            }
+        }
+    })
+
+
+/*
   const run = async () => {
     const response = await client.lists.batchListMembers(listID, {
       members: [{
@@ -59,6 +88,9 @@ app.post("/", function(req,res){
   };
 
   run();
+
+  */
+
 /*
 url = "https://us5.api.mailchimp.com/3.0/lists/" + listID;
 
@@ -79,7 +111,9 @@ request.end();
 
 });
 
-
+app.post('/failure', function(req, res){
+    res.redirect('/');
+});
 
 
 /* const client = require("mailchimp-marketing");
